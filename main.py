@@ -37,24 +37,28 @@ class MyGame(arcade.Window):
     def setup(self):
         self.mouse_x = random.randint(0, self.screen_width)
         self.mouse_y = random.randint(0, self.screen_height)
-
-        for i in range(self.wall_count):
-            x1 = random.randrange(self.screen_width)
-            x2 = random.randrange(self.screen_width)
-            y1 = random.randrange(self.screen_height)
-            y2 = random.randrange(self.screen_height)
-
-            self.walls.append(Line(x1, y1, x2, y2, self.screen_width, self.screen_height))
-        for i in range(self.__rays_count):
-            ray = Line(
-                0,
-                0,
-                self.screen_width * math.cos((self.__degress / self.__rays_count) * i * (math.pi / 180)),
-                self.screen_width * math.sin((self.__degress / self.__rays_count) * i * (math.pi / 180)),
-                self.screen_width,
-                self.screen_height,
+        self.walls = [
+            Line(
+                start_x=random.randrange(self.screen_width),
+                end_x=random.randrange(self.screen_width),
+                start_y=random.randrange(self.screen_height),
+                end_y=random.randrange(self.screen_height),
+                ray_length=self.screen_width,
+                screen_height=self.screen_height,
             )
-            self.rays.append(ray)
+            for i in range(self.wall_count)
+        ]
+        self.rays = [
+            Line(
+                start_x=0,
+                start_y=0,
+                end_x=self.screen_width * math.cos((self.__degress / self.__rays_count) * i * (math.pi / 180)),
+                end_y=self.screen_width * math.sin((self.__degress / self.__rays_count) * i * (math.pi / 180)),
+                ray_length=self.screen_width,
+                screen_height=self.screen_height,
+            )
+            for i in range(self.__rays_count)
+        ]
 
     def on_draw(self):
         self.clear()
@@ -85,8 +89,8 @@ class MyGame(arcade.Window):
             self.change_x = 0
 
     def draw_lines(self, lines: List[Line], color=arcade.csscolor.WHITE):
-        line: Line
-        for index, line in enumerate(lines):
+
+        for line in lines:
             arcade.draw_line(line.start_x, line.start_y, line.end_x, line.end_y, color)
 
     def recalculate(self):
@@ -98,12 +102,10 @@ class MyGame(arcade.Window):
         self.mouse_x += self.change_x
         self.mouse_y += self.change_y
 
-        ray: Line
         for index, ray in enumerate(self.rays):
             self.intersecting_points.clear()
             ray.update_b()
 
-            wall: Line
             for wall in self.walls:
                 cross_point = ray.cross_point_with_line(wall)
                 if cross_point:
