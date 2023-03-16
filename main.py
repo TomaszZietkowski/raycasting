@@ -4,45 +4,55 @@ from typing import List
 
 import arcade
 
-from constants import *
 from line import Line
 
 
 class MyGame(arcade.Window):
-    def __init__(self):
+    def __init__(
+        self,
+        screen_width: int = 800,
+        screen_height: int = 640,
+        screen_title: str = "Ray tracing",
+        walls_count: int = 20,
+    ):
 
         # Call the parent class and set up the window
-        super().__init__(SCREEN_WIDTH, SCREEN_HEIGHT, SCREEN_TITLE)
+        super().__init__(screen_width, screen_height, screen_title)
 
         arcade.set_background_color(arcade.csscolor.BLACK)
 
-        self.walls = []
-        self.rays = []
-        self.intersecting_points = []
+        self.walls: List = []
+        self.rays: List = []
+        self.intersecting_points: List = []
         self.mouse_x = 0
         self.mouse_y = 0
         self.change_x = 0
         self.change_y = 0
-        # self.change_x = 2
-        # self.change_y = 2
+        self.screen_width = screen_width
+        self.screen_height = screen_height
+        self.__degress = 360
+        self.__rays_count = math.floor(self.__degress * 2.04)
+        self.wall_count = walls_count
 
     def setup(self):
-        self.mouse_x = random.randint(0, SCREEN_WIDTH)
-        self.mouse_y = random.randint(0, SCREEN_HEIGHT)
+        self.mouse_x = random.randint(0, self.screen_width)
+        self.mouse_y = random.randint(0, self.screen_height)
 
-        for i in range(WALLS_COUNT):
-            x1 = random.randrange(SCREEN_WIDTH)
-            x2 = random.randrange(SCREEN_WIDTH)
-            y1 = random.randrange(SCREEN_HEIGHT)
-            y2 = random.randrange(SCREEN_HEIGHT)
+        for i in range(self.wall_count):
+            x1 = random.randrange(self.screen_width)
+            x2 = random.randrange(self.screen_width)
+            y1 = random.randrange(self.screen_height)
+            y2 = random.randrange(self.screen_height)
 
-            self.walls.append(Line(x1, y1, x2, y2))
-        for i in range(RAYS_COUNT):
+            self.walls.append(Line(x1, y1, x2, y2, self.screen_width, self.screen_height))
+        for i in range(self.__rays_count):
             ray = Line(
                 0,
                 0,
-                RAY_LENGTH * math.cos((DEGREES / RAYS_COUNT) * i * (math.pi / 180)),
-                RAY_LENGTH * math.sin((DEGREES / RAYS_COUNT) * i * (math.pi / 180)),
+                self.screen_width * math.cos((self.__degress / self.__rays_count) * i * (math.pi / 180)),
+                self.screen_width * math.sin((self.__degress / self.__rays_count) * i * (math.pi / 180)),
+                self.screen_width,
+                self.screen_height,
             )
             self.rays.append(ray)
 
@@ -96,7 +106,7 @@ class MyGame(arcade.Window):
             wall: Line
             for wall in self.walls:
                 cross_point = ray.cross_point_with_line(wall)
-                if cross_point != None:
+                if cross_point:
                     self.intersecting_points.append(cross_point)
 
             if len(self.intersecting_points) != 0:
@@ -106,8 +116,12 @@ class MyGame(arcade.Window):
                 end_x = intersecting_points_sorted_by_distance[0]["x"]
                 end_y = intersecting_points_sorted_by_distance[0]["y"]
             else:
-                end_x = self.mouse_x + RAY_LENGTH * math.cos(((DEGREES) / RAYS_COUNT) * index * (math.pi / 180))
-                end_y = self.mouse_y + RAY_LENGTH * math.sin(((DEGREES) / RAYS_COUNT) * index * (math.pi / 180))
+                end_x = self.mouse_x + self.screen_width * math.cos(
+                    ((self.__degress) / self.__rays_count) * index * (math.pi / 180)
+                )
+                end_y = self.mouse_y + self.screen_width * math.sin(
+                    ((self.__degress) / self.__rays_count) * index * (math.pi / 180)
+                )
 
             ray.start_x = self.mouse_x
             ray.start_y = self.mouse_y
