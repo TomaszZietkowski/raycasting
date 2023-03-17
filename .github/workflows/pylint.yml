@@ -21,7 +21,6 @@ jobs:
         pip install pre-commit
     - name: run pre-commit
       run: |
-        cd raycasting
         pre-commit run --all-files
 #     - name: Analysing the code with pylint
 #       run: |
