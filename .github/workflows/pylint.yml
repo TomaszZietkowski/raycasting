@@ -20,7 +20,9 @@ jobs:
         pip install pylint
         pip install pre-commit
     - name: run pre-commit
-      run: pre-commit run --all-files
+      run: |
+        pre-commit install
+        pre-commit run --all-files
 #     - name: Analysing the code with pylint
 #       run: |
 #         pylint $(git ls-files '*.py')
